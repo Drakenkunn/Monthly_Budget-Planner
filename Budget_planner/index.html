@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Budget Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #8e8ab2;
+    }
+    .card {
+      background-color: rgb(252, 252, 252);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(76, 142, 241, 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      border: 1px solid #276ddf;
+    }
+    .input-group span {
+      padding: 0 0.75rem;
+      color: #56627c;
+      font-size: 1rem;
+    }
+    .input-group input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      outline: none;
+      text-align: right;
+    }
+    .expense-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #000000;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .expense-row:hover {
+      background-color: #dce4e6;
+      transform: translateY(-2px);
+    }
+    .expense-row:last-child {
+      border-bottom: none;
+    }
+    .expense-label {
+      color: #183343;
+      font-size: 1rem;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid #02084c;
+    }
+    .total-label {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: #1f2937;
+    }
+    .total-amount {
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    <header class="text-center mb-8">
+      <div class="flex justify-center items-center space-x-4">
+        <h1 class="text-4xl font-bold text-black-1000 dark:text-gray-200">Monthly Budget Planner</h1>
+        <button id="darkModeToggle" aria-label="Toggle Dark Mode" class="bg-gray-300 dark:bg-gray-700 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg id="darkModeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07 5.07l-.7-.7M6.34 6.34l-.7-.7m12.02 12.02l-.7-.7M6.34 17.66l-.7-.7M12 7a5 5 0 000 10 5 5 0 000-10z" />
+          </svg>
+        </button>
+      </div>
+      <p class="text-gray-600 mt-2 dark:text-gray-400">Track your income, expenses, and savings in detail.</p>
+    </header>
+
+    <!-- Income Card -->
+    <div class="card">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">1. Income</h2>
+      <div class="expense-row">
+        <label for="incomeInput" class="expense-label font-semibold">Total Monthly Income:</label>
+        <div class="input-group w-48">
+          <span>₹</span>
+          <input type="number" id="incomeInput" placeholder="0.00" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Cards -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Fixed Expenses Card -->
+      <div class="card">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">2. Fixed Expenses</h2>
+        <div id="fixedExpensesContainer"></div>
+        <button onclick="addItem('fixed')" class="mt-3 text-sm text-blue-600 hover:underline">+ Add Fixed Expense</button>
+        <div class="total-row">
+          <span class="total-label">Total Fixed</span>
+          <span id="totalFixed" class="total-amount text-red-600">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Variable Expenses Card -->
+      <div class="card">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">3. Variable Expenses</h2>
+        <div id="variableExpensesContainer"></div>
+        <button onclick="addItem('variable')" class="mt-3 text-sm text-blue-600 hover:underline">+ Add Variable Expense</button>
+        <div class="total-row">
+          <span class="total-label">Total Variable</span>
+          <span id="totalVariable" class="total-amount text-orange-600">₹0.00</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Miscellaneous Tracker -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+      <h2 class="text-xl font-semibold mb-2">Miscellaneous Tracker</h2>
+      <div>
+        <input id="miscName" type="text" placeholder="Miscellaneous Item" class="p-2 border rounded mb-2"/>
+        <input id="miscAmount" type="number" placeholder="Amount" class="p-2 border rounded mb-2"/>
+        <button onclick="addMisc()" class="bg-purple-600 text-white px-4 py-2 rounded">Add Misc</button>
+      </div>
+      <ul id="miscList" class="mt-2 list-disc list-inside"></ul>
+    </div>
+
+    <!-- Savings & Investments Card -->
+    <div class="card">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">4. Savings & Investments</h2>
+      <div id="savingsContainer"></div>
+      <button onclick="addItem('savings')" class="mt-3 text-sm text-blue-600 hover:underline">+ Add Saving/Investment</button>
+      <div class="total-row">
+        <span class="total-label">Total Savings</span>
+        <span id="totalSavings" class="total-amount text-green-600">₹0.00</span>
+      </div>
+    </div>
+
+    <!-- ⚠️ Budget Warning -->
+    <div id="warningMessage" class="hidden text-center mb-4 text-red-700 bg-red-100 border border-red-300 rounded p-3 font-semibold">
+      ⚠️ Warning: Oyeeeeee SaSur ke Naaaatii !!!
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">5. Summary</h2>
+      <div class="space-y-3">
+        <div class="summary-row bg-blue-50">
+          <span class="font-semibold text-blue-800">Total Income:</span>
+          <span id="summaryIncome" class="font-bold text-xl text-blue-900">₹0.00</span>
+        </div>
+        <div class="summary-row bg-red-50">
+          <span class="font-semibold text-red-800">Total Expenses (Fixed + Variable):</span>
+          <span id="summaryExpenses" class="font-bold text-xl text-red-900">₹0.00</span>
+        </div>
+        <div class="summary-row bg-green-50">
+          <span class="font-semibold text-green-800">Total Savings & Investments:</span>
+          <span id="summarySavings" class="font-bold text-xl text-green-900">₹0.00</span>
+        </div>
+        <div id="summaryRemainingRow" class="summary-row bg-gray-100">
+          <span class="font-semibold text-gray-800">Remaining / Excess:</span>
+          <span id="summaryRemaining" class="font-bold text-xl text-gray-900">₹0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mb-8">
+    <button id="exportPdfBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+      Export as PDF
+    </button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const fixedExpenseItems = ["Rent", "EMI (Loan/Credit)", "Groceries", "Electricity Bill", "Internet/Mobile", "Transportation", "Insurance Premiums", "Subscriptions (OTT, apps)"];
+          const variableExpenseItems = ["Dining Out", "Entertainment", "Shopping (Clothes, etc)", "Health/Medicines", "Miscellaneous"];
+          const savingsItems = ["Emergency Fund", "Mutual Funds/Stocks", "Recurring Deposits/PPF", "Goal-based Savings"];
+
+          const incomeInput = document.getElementById('incomeInput');
+          const fixedContainer = document.getElementById('fixedExpensesContainer');
+          const variableContainer = document.getElementById('variableExpensesContainer');
+          const savingsContainer = document.getElementById('savingsContainer');
+
+          // New array to hold miscellaneous expenses
+          const miscellaneousExpenses = [];
+
+          const calculateAndDisplay = () => {
+            const income = parseFloat(incomeInput.value) || 0;
+            const totalFixed = sumCategory('fixed');
+            const totalVariable = sumCategory('variable');
+            const totalMiscellaneous = miscellaneousExpenses.reduce((acc, item) => acc + item.amount, 0);
+            const totalExpenses = totalFixed + totalVariable + totalMiscellaneous;
+            const totalSavings = sumCategory('savings');
+            const remaining = income - totalExpenses - totalSavings;
+
+            document.getElementById('totalFixed').textContent = formatCurrency(totalFixed);
+            document.getElementById('totalVariable').textContent = formatCurrency(totalVariable);
+            document.getElementById('totalSavings').textContent = formatCurrency(totalSavings);
+            // Display total miscellaneous expenses
+            document.getElementById('totalMiscellaneous').textContent = formatCurrency(totalMiscellaneous);
+
+            document.getElementById('summaryIncome').textContent = formatCurrency(income);
+            document.getElementById('summaryExpenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('summarySavings').textContent = formatCurrency(totalSavings);
+
+            const remainingEl = document.getElementById('summaryRemaining');
+            const remainingRowEl = document.getElementById('summaryRemainingRow');
+            remainingEl.textContent = formatCurrency(remaining);
+
+            remainingRowEl.classList.remove('bg-green-100', 'bg-red-100', 'bg-gray-100');
+            remainingEl.classList.remove('text-green-900', 'text-red-900', 'text-gray-900');
+            if (remaining > 0) {
+              remainingRowEl.classList.add('bg-green-100');
+              remainingEl.classList.add('text-green-900');
+            } else if (remaining < 0) {
+              remainingRowEl.classList.add('bg-red-100');
+              remainingEl.classList.add('text-red-900');
+            } else {
+              remainingRowEl.classList.add('bg-gray-100');
+              remainingEl.classList.add('text-gray-900');
+            }
+
+            const warningEl = document.getElementById('warningMessage');
+            if (totalExpenses + totalSavings > income) {
+              warningEl.classList.remove('hidden');
+            } else {
+              warningEl.classList.add('hidden');
+            }
+          };
+
+          const createRows = (container, items, type) => {
+            items.forEach(item => addRow(container, item, type));
+          };
+
+          const addRow = (container, label, category) => {
+            const row = document.createElement('div');
+            row.className = 'expense-row';
+            row.innerHTML = `
+              <label class="expense-label">${label}:</label>
+              <div class="input-group w-40">
+                <span>₹</span>
+                <input type="number" class="category-input" data-category="${category}" placeholder="0.00" min="0">
+              </div>
+            `;
+            container.appendChild(row);
+          };
+
+          const sumCategory = (category) => {
+            let total = 0;
+            document.querySelectorAll(`.category-input[data-category='${category}']`).forEach(input => {
+              total += parseFloat(input.value) || 0;
+            });
+            return total;
+          };
+
+          const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              minimumFractionDigits: 2,
+            }).format(amount);
+          };
+
+          // Function to add miscellaneous item
+          window.addMisc = () => {
+            const nameInput = document.getElementById('miscName');
+            const amountInput = document.getElementById('miscAmount');
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+
+            if (!name) {
+              alert('Please enter a name for the miscellaneous item.');
+              return;
+            }
+            if (isNaN(amount) || amount < 0) {
+              alert('Please enter a valid amount for the miscellaneous item.');
+              return;
+            }
+
+            // Add to miscellaneous expenses array
+            miscellaneousExpenses.push({ name, amount });
+
+            // Update the UI list
+            const miscList = document.getElementById('miscList');
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name}: ₹${amount.toFixed(2)}`;
+            miscList.appendChild(listItem);
+
+            // Clear inputs
+            nameInput.value = '';
+            amountInput.value = '';
+
+            // Recalculate totals and update display
+            calculateAndDisplay();
+          };
+
+          window.addItem = (category) => {
+            const label = prompt("Enter the name of the new item:");
+            if (!label) return;
+            const containerMap = { fixed: fixedContainer, variable: variableContainer, savings: savingsContainer };
+            addRow(containerMap[category], label, category);
+          };
+
+          createRows(fixedContainer, fixedExpenseItems, 'fixed');
+          createRows(variableContainer, variableExpenseItems, 'variable');
+          createRows(savingsContainer, savingsItems, 'savings');
+
+          // Add total miscellaneous display element dynamically
+          const miscCard = document.querySelector('.bg-white.rounded-lg.shadow.p-4.mb-6');
+          const totalMiscDiv = document.createElement('div');
+          totalMiscDiv.className = 'total-row';
+          totalMiscDiv.innerHTML = `
+            <span class="total-label">Total Miscellaneous</span>
+            <span id="totalMiscellaneous" class="total-amount text-purple-600">₹0.00</span>
+          `;
+          miscCard.appendChild(totalMiscDiv);
+
+          document.body.addEventListener('input', (event) => {
+            if (event.target.matches('#incomeInput') || event.target.matches('.category-input')) {
+              calculateAndDisplay();
+            }
+          });
+
+          calculateAndDisplay();
+
+          // PDF Export
+          document.getElementById('exportPdfBtn').addEventListener('click', () => {
+            const element = document.querySelector('.container');
+            html2pdf().set({
+              margin: 0.5,
+              filename: 'Monthly_Budget_Plan.pdf',
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 2 },
+              jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
+          });
+
+          // Dark mode toggle
+          const darkModeToggle = document.getElementById('darkModeToggle');
+          const body = document.body;
+          const darkModeIcon = document.getElementById('darkModeIcon');
+
+          if (localStorage.getItem('darkMode') === 'enabled') {
+            body.classList.add('dark');
+            darkModeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />';
+          }
+
+          darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+              localStorage.setItem('darkMode', 'enabled');
+              darkModeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />';
+            } else {
+              localStorage.setItem('darkMode', 'disabled');
+              darkModeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07 5.07l-.7-.7M6.34 6.34l-.7-.7m12.02 12.02l-.7-.7M6.34 17.66l-.7-.7M12 7a5 5 0 000 10 5 5 0 000-10z" />';
+            }
+          });
+        });
+  </script>
+</body>
+</html>
